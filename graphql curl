@@ -1,0 +1,30 @@
+ public function graph($options) {
+        $shop = (isset($options['shop']) ? $options['shop'] : 'staging.myshopify.com');
+        $url = 'https://' . $shop . '/admin/api/2020-01/graphql.json';
+
+        $req = [];
+        if (isset($options['query'])) {
+            $req = ["query" => $options['query']];
+        }
+        $req = json_encode($req);
+
+        $request_headers = array(
+            "Content-type: application/json; charset=utf-8",
+            'Expect:',
+            'X-Shopify-Access-Token: ' . $options['access_token'],
+            'Accept: ' . 'application/json'
+        );
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $req);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+//        print_R($result);
+        curl_close($ch);
+
+        $result = preg_replace("/[\r\n]+/", " ", $result);
+        $result = utf8_encode($result);
+
+        return json_decode($result);
+    }
